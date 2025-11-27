@@ -1,9 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"D:/Project/minecraft_flutter_launcher/windows/out/build/x64-Debug/cmake_install.cmake",
-		"D:/Project/minecraft_flutter_launcher/windows/out/build/x64-Debug/flutter/cmake_install.cmake",
-		"D:/Project/minecraft_flutter_launcher/windows/out/build/x64-Debug/runner/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
