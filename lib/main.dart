@@ -7,13 +7,10 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Luminous_minecraft_launcher',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: MyHomePage(),
-    );
+    return MaterialApp(title: 'Minecraft Launcher', home: MyHomePage());
   }
 }
 
@@ -23,6 +20,41 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Home'),
+        backgroundColor: const Color.fromARGB(255, 136, 51, 255),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 136, 51, 255),
+              ),
+              child: Text(
+                'Minecraft Launcher',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              title: Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('Game Download'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => gameDownloadPage()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -32,20 +64,17 @@ class MyHomePage extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
-        child: OutlinedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => gameDownloadPage()),
-            );
-          },
-          child: Text(
-            'Welcome to Luminous_minecraft_launcher',
-            style: TextStyle(
-              backgroundColor: Colors.white,
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: const Color.fromARGB(255, 136, 51, 255),
+        child: Center(
+          child: OutlinedButton(
+            onPressed: () {},
+            child: Text(
+              'Welcome to Luminous_minecraft_launcher',
+              style: TextStyle(
+                backgroundColor: Colors.white,
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: const Color.fromARGB(255, 136, 51, 255),
+              ),
             ),
           ),
         ),
