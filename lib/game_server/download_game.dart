@@ -105,4 +105,4 @@ class GameList {
   }
 }
 
-class game_list {}
+class Game_List {}

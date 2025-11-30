@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'download_game.dart';
 
-class gameDownloadPage extends StatelessWidget {
-  const gameDownloadPage({super.key});
+class GameDownloadPage extends StatelessWidget {
+  const GameDownloadPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,6 @@ class gameDownloadPage extends StatelessWidget {
                     ),
                     trailing: ElevatedButton(
                       onPressed: () {
-                        // TODO: 实现下载功能
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Downloading ${version.id}...'),
