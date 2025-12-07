@@ -16,10 +16,7 @@ class MinecraftVersion {
     required this.releaseTime,
   });
 
-<<<<<<< HEAD
   // 从JSON创建MinecraftVersion对象的方法
-=======
->>>>>>> a472324b92187f8b24794303c8c7415d9a9f6df0
   factory MinecraftVersion.fromJson(Map<String, dynamic> json) {
     return MinecraftVersion(
       id: json['id'],
