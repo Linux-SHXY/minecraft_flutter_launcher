@@ -50,7 +50,7 @@ class MyHomePage extends StatelessWidget {
         height: double.infinity,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.jpg'),
+            image: NetworkImage('https://img.xjh.me/random_img.php?return=302&type=bg&ctype=acg'),
             fit: BoxFit.cover,
           ),
         ),

@@ -87,7 +87,6 @@ class GameList {
         orElse: () => versions.first,
       );
     } catch (e) {
-      print('Error getting latest release: $e');
       return null;
     }
   }
