@@ -7,6 +7,12 @@
       "project": "windows\\CMakeLists.txt",
       "projectTarget": "minecraft_flutter.exe (runner\\minecraft_flutter.exe)",
       "name": "minecraft_flutter.exe (runner\\minecraft_flutter.exe)"
+    },
+    {
+      "type": "default",
+      "project": "windows\\CMakeLists.txt",
+      "projectTarget": "minecraft_flutter_launche.exe (runner\\minecraft_flutter_launche.exe)",
+      "name": "minecraft_flutter_launche.exe (runner\\minecraft_flutter_launche.exe)"
     }
   ]
 }
