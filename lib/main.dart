@@ -167,9 +167,9 @@ class HomePage extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         image: DecorationImage(
-          image: NetworkImage('https://img.xjh.me/random_img.php?return=302&type=bg&ctype=acg'),
+          image: AssetImage('assets/background.jpg'),
           fit: BoxFit.cover,
         ),
       ),
