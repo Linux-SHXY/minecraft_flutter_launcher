@@ -1,90 +1,40 @@
 import 'package:flutter/material.dart';
 import 'download_game.dart';
-import '../settings_manager.dart';
 
 class GameDownloadPage extends StatefulWidget {
-  const GameDownloadPage({super.key});
+  final Map<String, double> downloadProgress;
+  final Map<String, bool> isDownloading;
+  final Map<String, bool> downloadComplete;
+  final Map<String, String> currentTask;
+  final Function(MinecraftVersion) onDownload;
+
+  const GameDownloadPage({
+    super.key,
+    required this.downloadProgress,
+    required this.isDownloading,
+    required this.downloadComplete,
+    required this.currentTask,
+    required this.onDownload,
+  });
 
   @override
   State<GameDownloadPage> createState() => _GameDownloadPageState();
 }
 
 class _GameDownloadPageState extends State<GameDownloadPage> {
-  final SettingsManager _settingsManager = SettingsManager();
-  final Map<String, double> _downloadProgress = {};
-  final Map<String, bool> _isDownloading = {};
-  final Map<String, bool> _downloadComplete = {};
-
   Future<void> _downloadVersion(MinecraftVersion version) async {
-    if (_isDownloading[version.id] == true) return;
-
-    final downloadPath = await _settingsManager.getDownloadPath();
-    if (downloadPath.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('请先在设置中设置游戏下载目录'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      return;
-    }
-
-    setState(() {
-      _isDownloading[version.id] = true;
-      _downloadProgress[version.id] = 0.0;
-      _downloadComplete[version.id] = false;
-    });
-
-    try {
-      await GameList.downloadVersion(
-        version.id,
-        downloadPath,
-        (progress) {
-          if (mounted) {
-            setState(() {
-              _downloadProgress[version.id] = progress;
-            });
-          }
-        },
-      );
-
-      if (mounted) {
-        setState(() {
-          _isDownloading[version.id] = false;
-          _downloadComplete[version.id] = true;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${version.id} 下载完成!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isDownloading[version.id] = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('下载失败: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
+    widget.onDownload(version);
   }
 
   Widget _buildDownloadButton(MinecraftVersion version) {
-    final isDownloading = _isDownloading[version.id] == true;
-    final progress = _downloadProgress[version.id] ?? 0.0;
-    final isComplete = _downloadComplete[version.id] == true;
+    final isDownloading = widget.isDownloading[version.id] == true;
+    final progress = widget.downloadProgress[version.id] ?? 0.0;
+    final isComplete = widget.downloadComplete[version.id] == true;
+    final currentTask = widget.currentTask[version.id] ?? '';
 
     if (isDownloading) {
       return SizedBox(
-        width: 120,
+        width: 150,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -98,6 +48,13 @@ class _GameDownloadPageState extends State<GameDownloadPage> {
             Text(
               '${(progress * 100).toStringAsFixed(0)}%',
               style: const TextStyle(fontSize: 12),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              currentTask,
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

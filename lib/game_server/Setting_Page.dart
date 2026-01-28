@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 import '../settings_manager.dart';
 
 class SettingPage extends StatefulWidget {
@@ -35,32 +34,28 @@ class _SettingPageState extends State<SettingPage> {
 
   Future<void> _selectDownloadDirectory() async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final path = await _settingsManager.getDownloadPath();
-      
-      if (path.isNotEmpty) {
-        final result = await Directory(path).exists() 
-            ? path 
-            : directory.path;
-        
+      final String? selectedDirectory = await FilePicker.platform
+          .getDirectoryPath();
+
+      if (selectedDirectory != null && mounted) {
+        setState(() {
+          _downloadPath = selectedDirectory;
+        });
+        await _settingsManager.setDownloadPath(selectedDirectory);
+
         if (mounted) {
-          setState(() {
-            _downloadPath = result;
-          });
-          await _settingsManager.setDownloadPath(result);
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            _downloadPath = directory.path;
-          });
-          await _settingsManager.setDownloadPath(directory.path);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('下载目录已设置为: $selectedDirectory'),
+              backgroundColor: Colors.green,
+            ),
+          );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error setting download directory: $e')),
+          SnackBar(content: Text('选择目录失败: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -69,9 +64,7 @@ class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -147,10 +140,7 @@ class _SettingPageState extends State<SettingPage> {
             const SizedBox(height: 12),
             Text(
               '当前选择: $_selectedColorName',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ],
         ),
@@ -192,7 +182,9 @@ class _SettingPageState extends State<SettingPage> {
                       _downloadPath.isEmpty ? '未设置下载目录' : _downloadPath,
                       style: TextStyle(
                         fontSize: 14,
-                        color: _downloadPath.isEmpty ? Colors.grey[500] : Colors.black87,
+                        color: _downloadPath.isEmpty
+                            ? Colors.grey[500]
+                            : Colors.black87,
                       ),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
@@ -218,10 +210,7 @@ class _SettingPageState extends State<SettingPage> {
             const SizedBox(height: 8),
             Text(
               '提示: 下载的游戏将保存在此目录中',
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.grey[500], fontSize: 12),
             ),
           ],
         ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'home_page.dart';
 import 'game_server/game_download_page.dart';
 import 'game_server/Setting_Page.dart';
+import 'game_server/download_game.dart';
 import 'settings_manager.dart';
 
 void main() async {
@@ -70,18 +72,90 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
+  final SettingsManager _settingsManager = SettingsManager();
+  final Map<String, double> _downloadProgress = {};
+  final Map<String, bool> _isDownloading = {};
+  final Map<String, bool> _downloadComplete = {};
+  final Map<String, String> _currentTask = {};
+
+  Future<void> _downloadVersion(MinecraftVersion version) async {
+    if (_isDownloading[version.id] == true) return;
+
+    final downloadPath = await _settingsManager.getDownloadPath();
+    if (downloadPath.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('请先在设置中设置游戏下载目录'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    setState(() {
+      _isDownloading[version.id] = true;
+      _downloadProgress[version.id] = 0.0;
+      _downloadComplete[version.id] = false;
+      _currentTask[version.id] = '准备下载...';
+    });
+
+    try {
+      await GameList.downloadVersion(version.id, downloadPath, (progress) {
+        if (mounted) {
+          setState(() {
+            _downloadProgress[version.id] = progress.overallProgress;
+            _currentTask[version.id] = progress.currentTask;
+          });
+        }
+      });
+
+      if (mounted) {
+        setState(() {
+          _isDownloading[version.id] = false;
+          _downloadComplete[version.id] = true;
+          _currentTask[version.id] = '下载完成';
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${version.id} 下载完成!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isDownloading[version.id] = false;
+          _currentTask[version.id] = '下载失败';
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('下载失败: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
 
   List<Widget> get _pages => [
-    const HomePage(),
-    const GameDownloadPage(),
+    HomePage(
+      downloadProgress: _downloadProgress,
+      isDownloading: _isDownloading,
+      downloadComplete: _downloadComplete,
+      currentTask: _currentTask,
+      onDownload: _downloadVersion,
+    ),
+    GameDownloadPage(
+      downloadProgress: _downloadProgress,
+      isDownloading: _isDownloading,
+      downloadComplete: _downloadComplete,
+      currentTask: _currentTask,
+      onDownload: _downloadVersion,
+    ),
     SettingPage(onThemeUpdated: widget.onThemeUpdated),
   ];
 
-  final List<String> _titles = [
-    'Home',
-    'Game Download',
-    'Setting',
-  ];
+  final List<String> _titles = ['Home', 'Game Download', 'Setting'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -114,9 +188,7 @@ class _MainPageState extends State<MainPage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: primaryColor,
-              ),
+              decoration: BoxDecoration(color: primaryColor),
               child: const Text(
                 'Minecraft Launcher',
                 style: TextStyle(color: Colors.white, fontSize: 24),
@@ -155,24 +227,6 @@ class _MainPageState extends State<MainPage> {
               label: const Text('Start Game'),
             )
           : null,
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/background.jpg'),
-          fit: BoxFit.cover,
-        ),
-      ),
     );
   }
 }

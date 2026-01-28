@@ -12,10 +12,18 @@ class SettingsManager {
   static const String _keyDownloadPath = 'download_path';
 
   static final List<ColorOption> availableColors = [
-    ColorOption('Deep Purple', Colors.deepPurple, const Color.fromARGB(255, 136, 51, 255)),
+    ColorOption(
+      'Deep Purple',
+      Colors.deepPurple,
+      const Color.fromARGB(255, 136, 51, 255),
+    ),
     ColorOption('Blue', Colors.blue, const Color.fromARGB(255, 33, 150, 243)),
     ColorOption('Green', Colors.green, const Color.fromARGB(255, 76, 175, 80)),
-    ColorOption('Orange', Colors.orange, const Color.fromARGB(255, 255, 152, 0)),
+    ColorOption(
+      'Orange',
+      Colors.orange,
+      const Color.fromARGB(255, 255, 152, 0),
+    ),
     ColorOption('Red', Colors.red, const Color.fromARGB(255, 244, 67, 54)),
     ColorOption('Pink', Colors.pink, const Color.fromARGB(255, 233, 30, 99)),
     ColorOption('Teal', Colors.teal, const Color.fromARGB(255, 0, 150, 136)),
@@ -36,10 +44,12 @@ class SettingsManager {
   }
 
   MaterialColor getMaterialColorByName(String colorName) {
-    return availableColors.firstWhere(
-      (c) => c.name == colorName,
-      orElse: () => availableColors[0],
-    ).materialColor;
+    return availableColors
+        .firstWhere(
+          (c) => c.name == colorName,
+          orElse: () => availableColors[0],
+        )
+        .materialColor;
   }
 
   Future<String> getDownloadPath() async {
