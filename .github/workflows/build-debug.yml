@@ -1,4 +1,4 @@
-name: Build Debug APKs
+name: Build Debug Windows
 
 on:
   push:
@@ -27,11 +27,11 @@ jobs:
         run: flutter pub get
       
       - name: Build Windows Debug
-        run: flutter build windows --debug
+        run: flutter build windows --release
       
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
         with:
-          name: windows-debug-build
-          path: build/windows/x64/runner/Debug/
+          name: windows-release-build
+          path: build/windows/x64/runner/Release/
           retention-days: 30
