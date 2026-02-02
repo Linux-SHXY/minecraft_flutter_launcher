@@ -3,6 +3,7 @@ import 'home_page.dart';
 import 'game_server/game_download_page.dart';
 import 'game_server/Setting_Page.dart';
 import 'game_server/download_game.dart';
+import 'game_server/download_controller.dart';
 import 'settings_manager.dart';
 
 void main() async {
@@ -81,60 +82,55 @@ class _MainPageState extends State<MainPage> {
   Future<void> _downloadVersion(MinecraftVersion version) async {
     if (_isDownloading[version.id] == true) return;
 
-    final downloadPath = await _settingsManager.getDownloadPath();
-    if (downloadPath.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('请先在设置中设置游戏下载目录'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      return;
-    }
-
-    setState(() {
-      _isDownloading[version.id] = true;
-      _downloadProgress[version.id] = 0.0;
-      _downloadComplete[version.id] = false;
-      _currentTask[version.id] = '准备下载...';
-    });
-
-    try {
-      await GameList.downloadVersion(version.id, downloadPath, (progress) {
+    await startDownloadVersion(
+      context,
+      version,
+      _settingsManager,
+      (progress) {
         if (mounted) {
           setState(() {
             _downloadProgress[version.id] = progress.overallProgress;
             _currentTask[version.id] = progress.currentTask;
           });
         }
-      });
-
-      if (mounted) {
-        setState(() {
-          _isDownloading[version.id] = false;
-          _downloadComplete[version.id] = true;
-          _currentTask[version.id] = '下载完成';
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${version.id} 下载完成!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isDownloading[version.id] = false;
-          _currentTask[version.id] = '下载失败';
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('下载失败: $e'), backgroundColor: Colors.red),
-        );
-      }
-    }
+      },
+      () {
+        if (mounted) {
+          setState(() {
+            _isDownloading[version.id] = true;
+            _downloadProgress[version.id] = 0.0;
+            _downloadComplete[version.id] = false;
+            _currentTask[version.id] = '准备下载...';
+          });
+        }
+      },
+      () {
+        if (mounted) {
+          setState(() {
+            _isDownloading[version.id] = false;
+            _downloadComplete[version.id] = true;
+            _currentTask[version.id] = '下载完成';
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${version.id} 下载完成!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      },
+      (error) {
+        if (mounted) {
+          setState(() {
+            _isDownloading[version.id] = false;
+            _currentTask[version.id] = '下载失败';
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('下载失败: $error'), backgroundColor: Colors.red),
+          );
+        }
+      },
+    );
   }
 
   List<Widget> get _pages => [

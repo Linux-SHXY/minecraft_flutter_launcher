@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
           height: double.infinity,
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/background.jpg'),
+              image: NetworkImage('https://uapis.cn/api/v1/random/image'),
               fit: BoxFit.cover,
             ),
           ),
@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   '${(progress * 100).toStringAsFixed(1)}%',
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Colors.blue,
                   ),
@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage> {
               child: LinearProgressIndicator(
                 value: progress,
                 backgroundColor: Colors.grey[300],
-                minHeight: 10,
+                minHeight: 6,
                 valueColor: AlwaysStoppedAnimation<Color>(
                   Colors.blue.withValues(alpha: 0.8),
                 ),
@@ -98,7 +98,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 8),
             Text(
               currentTask,
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
           ],
