@@ -14,6 +14,7 @@ class _SettingPageState extends State<SettingPage> {
   final SettingsManager _settingsManager = SettingsManager();
   String _selectedColorName = 'Deep Purple';
   String _downloadPath = '';
+  String _javaPath = '';
   bool _isLoading = true;
 
   @override
@@ -25,9 +26,11 @@ class _SettingPageState extends State<SettingPage> {
   Future<void> _loadSettings() async {
     final colorName = await _settingsManager.getThemeColor();
     final path = await _settingsManager.getDownloadPath();
+    final javaPath = await _settingsManager.getJavaPath();
     setState(() {
       _selectedColorName = colorName;
       _downloadPath = path;
+      _javaPath = javaPath;
       _isLoading = false;
     });
   }
@@ -74,6 +77,8 @@ class _SettingPageState extends State<SettingPage> {
           _buildThemeColorSection(),
           const SizedBox(height: 24),
           _buildDownloadPathSection(),
+          const SizedBox(height: 24),
+          _buildJavaPathSection(),
         ],
       ),
     );
@@ -148,6 +153,39 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
+  Future<void> _selectJavaPath() async {
+    try {
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['exe'],
+        dialogTitle: '选择Java可执行文件',
+      );
+
+      if (result != null && result.files.isNotEmpty && mounted) {
+        final selectedPath = result.files.single.path!;
+        setState(() {
+          _javaPath = selectedPath;
+        });
+        await _settingsManager.setJavaPath(selectedPath);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Java路径已设置为: $selectedPath'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('选择Java路径失败: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
   Widget _buildDownloadPathSection() {
     return Card(
       elevation: 4,
@@ -210,6 +248,76 @@ class _SettingPageState extends State<SettingPage> {
             const SizedBox(height: 8),
             Text(
               '提示: 下载的游戏将保存在此目录中',
+              style: TextStyle(color: Colors.grey[500], fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildJavaPathSection() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: const [
+                Icon(Icons.code, color: Color.fromARGB(255, 136, 51, 255)),
+                SizedBox(width: 8),
+                Text(
+                  'Java路径',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _javaPath.isEmpty ? '未设置Java路径' : _javaPath,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: _javaPath.isEmpty
+                            ? Colors.grey[500]
+                            : Colors.black87,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _selectJavaPath,
+                icon: const Icon(Icons.file_open),
+                label: const Text('选择Java路径'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 136, 51, 255),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '提示: 默认使用系统Java路径',
               style: TextStyle(color: Colors.grey[500], fontSize: 12),
             ),
           ],

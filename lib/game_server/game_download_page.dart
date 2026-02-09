@@ -22,6 +22,14 @@ class GameDownloadPage extends StatefulWidget {
 }
 
 class _GameDownloadPageState extends State<GameDownloadPage> {
+  late Future<List<MinecraftVersion>> _versionsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _versionsFuture = GameList.getMinecraftVersions();
+  }
+
   Future<void> _downloadVersion(MinecraftVersion version) async {
     widget.onDownload(version);
   }
@@ -87,7 +95,7 @@ class _GameDownloadPageState extends State<GameDownloadPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<List<MinecraftVersion>>(
-        future: GameList.getMinecraftVersions(),
+        future: _versionsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

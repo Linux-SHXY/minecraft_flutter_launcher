@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class SettingsManager {
   static final SettingsManager _instance = SettingsManager._internal();
@@ -10,6 +11,29 @@ class SettingsManager {
 
   static const String _keyThemeColor = 'theme_color';
   static const String _keyDownloadPath = 'download_path';
+  static const String _keyJavaPath = 'java_path';
+
+  static Future<String> getSystemJavaPath() async {
+    try {
+      final result = await Process.run(
+        Platform.isWindows ? 'where' : 'which',
+        ['java'],
+        runInShell: true,
+      );
+      
+      if (result.exitCode == 0 && result.stdout is String) {
+        final output = (result.stdout as String).trim();
+        // 在Windows上，where命令可能返回多个路径，取第一个
+        if (Platform.isWindows && output.contains('\n')) {
+          return output.split('\n').first.trim();
+        }
+        return output;
+      }
+    } catch (e) {
+      // 忽略错误，返回空字符串
+    }
+    return '';
+  }
 
   static final List<ColorOption> availableColors = [
     ColorOption(
@@ -65,6 +89,30 @@ class SettingsManager {
   Future<void> clearDownloadPath() async {
     await init();
     await _prefs?.remove(_keyDownloadPath);
+  }
+
+  Future<String> getJavaPath() async {
+    await init();
+    final savedPath = _prefs?.getString(_keyJavaPath);
+    if (savedPath != null && savedPath.isNotEmpty) {
+      return savedPath;
+    }
+    // 如果没有保存的路径，返回系统的Java路径
+    final systemPath = await getSystemJavaPath();
+    if (systemPath.isNotEmpty) {
+      await setJavaPath(systemPath);
+    }
+    return systemPath;
+  }
+
+  Future<void> setJavaPath(String path) async {
+    await init();
+    await _prefs?.setString(_keyJavaPath, path);
+  }
+
+  Future<void> clearJavaPath() async {
+    await init();
+    await _prefs?.remove(_keyJavaPath);
   }
 }
 
